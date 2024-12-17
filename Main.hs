@@ -8,19 +8,16 @@ import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 
 ------------------------------------------------------------
--- Red-Black Tree Definition
+-- Definition
 ------------------------------------------------------------
 
--- | Farbe eines Knotens
 data Color = Red | Black deriving (Show, Eq)
 
--- | Ein Red-Black-Baum ist entweder leer oder ein Knoten mit Farbe,
--- linkem Teilbaum, Wert und rechtem Teilbaum.
 data RBTree a = Empty
               | Node Color (RBTree a) a (RBTree a)
               deriving (Show, Eq)
 
--- | Ein leerer RB-Baum
+-- | leerer RB-Baum
 --
 -- >>> inOrder (empty :: RBTree Int)
 -- []
@@ -28,10 +25,10 @@ empty :: RBTree a
 empty = Empty
 
 ------------------------------------------------------------
--- Einfügen und Suchen im Red-Black-Baum
+-- Einfügen und Suchen
 ------------------------------------------------------------
 
--- | member prüft, ob ein Element im Baum vorhanden ist.
+-- | member prüft, ob Element im Baum vorhanden ist.
 --
 -- Beispiel:
 -- >>> let t = foldl' (flip insert) empty ["b","a","c"]
@@ -46,8 +43,8 @@ member x (Node _ l v r)
     | x > v     = member x r
     | otherwise = True
 
--- | insert fügt ein Element in den RB-Baum ein, falls es noch nicht vorhanden ist.
--- Der Baum bleibt ein Red-Black-Baum und damit balanciert.
+-- | insert fügt Element in RB-Baum ein, falls nicht vorhanden ist.
+-- Baum bleibt Red-Black-Baum und balanciert
 --
 -- >>> let t = foldl' (flip insert) empty [3,1,2]
 -- >>> inOrder t
@@ -83,8 +80,8 @@ balance color a x b = Node color a x b
 -- In-Order Traversal
 ------------------------------------------------------------
 
--- | inOrder durchläuft den RB-Baum in sortierter Reihenfolge.
--- Beispielsweise:
+-- | inOrder durchläuft RB-Baum in sortierter Reihenfolge.
+-- Bsp:
 --
 -- >>> inOrder (foldl' (flip insert) empty [2,1,3])
 -- [1,2,3]
@@ -98,8 +95,6 @@ inOrder (Node _ l v r) = inOrder l ++ [v] ++ inOrder r
 
 -- | normalizeText ersetzt alle Nicht-Buchstaben durch Leerzeichen und wandelt
 -- alle Buchstaben in Kleinbuchstaben um.
--- Dadurch wird verhindert, dass z. B. "you--sit" zu "yousit" wird.
--- Stattdessen wird daraus "you  sit", das dann beim words-Aufruf zu ["you","sit"] wird.
 --
 -- >>> normalizeText "Antichrist--I"
 -- "antichrist  i"
@@ -117,18 +112,18 @@ tokenize :: String -> [String]
 tokenize = words . normalizeText
 
 ------------------------------------------------------------
--- Hauptprogramm
+-- MAIN
 ------------------------------------------------------------
 
 main :: IO ()
 main = do
-    -- Datei lesen (war_and_peace.txt im gleichen Ordner vorausgesetzt)
+    -- Datei lesen
     content <- readFile "war_and_peace.txt"
     
     -- Tokenisierung
     let wordsList = tokenize content
     
-    -- In einen Red-Black-Baum einfügen, nur wenn Wort noch nicht vorhanden
+    -- In Red-Black-Baum einfügen, nur wenn Wort noch nicht vorhanden
     let tree = foldl' (\acc w -> if member w acc then acc else insert w acc) empty wordsList
 
     -- In-Order Traversal für sortierte Wortliste
@@ -139,19 +134,3 @@ main = do
         mapM_ (hPutStrLn h) sortedWords
 
     putStrLn "Fertig! Die sortierten Wörter wurden in output.txt geschrieben."
-
-------------------------------------------------------------
--- Tests mittels Doctest
-------------------------------------------------------------
--- Alle obigen Beispiele mit >>> ... sind Doctests.
---
--- So führen Sie die Tests aus:
--- 1. doctest installieren (z.B. `cabal install doctest` oder `stack install doctest`)
--- 2. Im Terminal: `doctest Main.hs`
---
--- Wenn alle Tests erfolgreich sind, erhalten Sie keine Fehlerausgabe.
---
--- Zusätzlich können Sie großflächige Tests durchführen, indem Sie
--- das Programm mit der echten "War and Peace"-Datei ausführen und die Ausgabe
--- überprüfen.
-------------------------------------------------------------
